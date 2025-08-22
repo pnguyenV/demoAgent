@@ -1,0 +1,26 @@
+[
+  {
+    "order_id": "ORD-001",
+    "product_name": "Jointgarde",
+    "customer_name": "John Smith",
+    "customer_phone": "555-123-4567",
+    "product_id": "JG-001",
+    "status": "shipped"
+  },
+  {
+    "order_id": "ORD-002", 
+    "product_name": "Biotonic",
+    "customer_name": "Maria Garcia",
+    "customer_phone": "555-234-5678",
+    "product_id": "BT-002",
+    "status": "processing"
+  },
+  {
+    "order_id": "ORD-003",
+    "product_name": "Lungarde", 
+    "customer_name": "David Johnson",
+    "customer_phone": "555-345-6789",
+    "product_id": "LG-003",
+    "status": "delivered"
+  }
+]
