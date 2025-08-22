@@ -1,6 +1,8 @@
-# same as week3 script, but deploy to streamlit website.  
-# pip freeze : take the output to requirements.txt
-# share.streamlit.io: bring up the app here to deploy it to public
+# To deploy in streamlit website.  
+# pip freeze : take the output to requirements.txt, make sure this code is a git public repo.
+# navigate to share.streamlit.io: bring up the app there as a public URL
+#  Secret section of the streamlit configuration page: provide the OpenAI key and email app password there
+
 import os
 import openai
 import asyncio
@@ -45,7 +47,7 @@ DB_FILE = os.getenv("DB_FILE", "week3-db_leads.db")
 # Email routing configuration (update these with real addresses in production)
 EMAIL_ROUTING = {
     "wholesale": EMAIL_USER,  # Replace with actual wholesale email
-    "retail": EMAIL_USER,     # Replace with actual retail email
+    "Product recommendations": EMAIL_USER,     # Replace with actual email of the internal team for this
     "orderlookup": EMAIL_USER # Replace with actual support email
 }
 
@@ -560,9 +562,9 @@ def create_handoff_callback(lead_type):
             if lead_type.lower() == "wholesale":
                 # Wholesale: Send email and store in database
                 asyncio.create_task(force_lead_email(lead_type, lead_details["name"], lead_details))
-            elif lead_type.lower() == "retail":
-                # Retail: Only store in database, no email (they get product recommendations)
-                log_system_message(f"HANDOFF: Retail lead {lead_details['name']} - skipping email, providing product recommendations")
+            elif lead_type.lower() == "Product recommendations":
+                # Product recommendations: Only store in database, no email (they get product recommendations)
+                log_system_message(f"HANDOFF: Product recommendations lead {lead_details['name']} - skipping email, providing product recommendations")
             elif lead_type.lower() == "orderlookup":
                 # OrderLookup: Only store in database, no email (they just need order status)
                 log_system_message(f"HANDOFF: OrderLookup lead {lead_details['name']} - skipping email, providing order status lookup")
@@ -593,8 +595,8 @@ def create_agent_system():
         Wholesale clients value expertise, reliability, and strategic partnership.
         """,
         
-        "retail_agent": """
-        You are a retail sales specialist who provides customer advice for which herbal products to buy based on the symptoms they provide.
+    "product_recommendations_agent": """
+        You are a Product recommendations specialist who provides customer advice for which herbal products to buy based on the symptoms they provide.
         
         Focus on:
         - Friendly, helpful, solutions-oriented approach
@@ -609,7 +611,7 @@ def create_agent_system():
         2. Explain how each recommended product addresses their specific symptoms, along with the cost, and a link to click here to add to Cart.
         3. Provide dosage guidance if requested
         
-        Retail clients need to select products that address their specific health concerns.
+        Product recommendations clients need to select products that address their specific health concerns.
         """,
         
         "orderlookup_agent": """
@@ -636,8 +638,8 @@ def create_agent_system():
     for agent_type, instructions in agent_instructions.items():
         tools = []
         
-        # Add herbal products search tool specifically for retail_agent
-        if agent_type == "retail_agent":
+        # Add herbal products search tool specifically for product_recommendations_agent
+        if agent_type == "product_recommendations_agent":
             tools.append(search_herbal_products)
         
         # Add order lookup tool specifically for orderlookup_agent
@@ -659,7 +661,7 @@ def create_agent_system():
         1. Greet leads professionally and collect basic information
         2. Analyze responses to determine lead type:
            - Wholesale: business-to-business sales
-           - Retail: individual customers seeking herbal products for health conditions
+           - Product recommendations: individual customers seeking herbal products for health conditions
            - OrderLookup: help them lookup their order from the database
         
         3. Hand off to appropriate specialist agent
@@ -674,7 +676,7 @@ def create_agent_system():
         """,
         handoffs=[
             handoff(agents["wholesale_agent"], on_handoff=create_handoff_callback("wholesale")),
-            handoff(agents["retail_agent"], on_handoff=create_handoff_callback("retail")),
+            handoff(agents["product_recommendations_agent"], on_handoff=create_handoff_callback("Product recommendations")),
             handoff(agents["orderlookup_agent"], on_handoff=create_handoff_callback("orderlookup"))
         ],
         tools=[route_lead_to_email, store_lead_in_database, send_email]
@@ -750,7 +752,7 @@ def render_sidebar():
         
         if st.sidebar.button("📤 Test Email Routing"):
             results = []
-            for lead_type in ["wholesale", "retail", "orderlookup"]:
+            for lead_type in ["wholesale", "Product recommendations", "orderlookup"]:
                 result = route_lead_email(lead_type, f"Test {lead_type.title()} Lead")
                 results.append("successfully" in result)
             
@@ -809,15 +811,15 @@ def main():
     """Main Streamlit application."""
     # Page configuration
     st.set_page_config(
-        page_title="Herbal Products Lead Qualification System",
+        page_title="Herbal Products Chat System",
         page_icon="🌿",
         layout="wide",
         initial_sidebar_state="expanded"
     )
     
     # Header
-    st.title("🌿 Herbal Products Lead Qualification System")
-    st.markdown("Welcome to our automated system for herbal products. This chat will help us match your needs to our product or to the right specialist, we offer 3 paths: **Wholesale orders**, **Retail product recommendations**, or **Order lookup**.")
+    st.title("🌿 Herbal Products Page")
+    st.markdown("This chat will help us match your needs to our product or to the right specialist, we offer 3 paths: **Product recommendations**, or **Order lookup**, or **Wholesale inquery**,")
     
     # Initialize session state
     if 'messages' not in st.session_state:
