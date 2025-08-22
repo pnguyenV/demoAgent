@@ -819,7 +819,13 @@ def main():
     
     # Header
     st.title("🌿 Herbal Products Page")
-    st.markdown("This chat will help us match your needs to our product or to the right specialist, we offer 3 paths: **Product recommendations**, or **Order lookup**, or **Wholesale inquery**,")
+    st.markdown("""
+This chat will help us match your needs to our product or to the right specialist. We offer three paths:
+
+- **Product recommendations**
+- **Order lookup**
+- **Wholesale inquiry**
+""")
     
     # Initialize session state
     if 'messages' not in st.session_state:
